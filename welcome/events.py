@@ -10,7 +10,6 @@ from redbot.core import Config, commands
 from redbot.core.bot import Red
 from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import humanize_list
-from redbot.core.utils.common_filters import filter_mass_mentions
 
 RE_CTX: Pattern = re.compile(r"{([^}]+)\}")
 RE_POS: Pattern = re.compile(r"{((\d+)[^.}]*(\.[^:}]+)?[^}]*)\}")
@@ -38,11 +37,11 @@ class Events:
         return str(getattr(obj, attr, raw_result))
 
     async def convert_parms(
-        self,
-        member: Union[discord.Member, List[discord.Member]],
-        guild: discord.Guild,
-        msg: str,
-        is_welcome: bool,
+            self,
+            member: Union[discord.Member, List[discord.Member]],
+            guild: discord.Guild,
+            msg: str,
+            is_welcome: bool,
     ) -> str:
         results = RE_POS.findall(msg)
         raw_response = msg
@@ -91,11 +90,11 @@ class Events:
         return raw_response
 
     async def make_embed(
-        self,
-        member: Union[discord.Member, List[discord.Member]],
-        guild: discord.Guild,
-        msg: str,
-        is_welcome: bool,
+            self,
+            member: Union[discord.Member, List[discord.Member]],
+            guild: discord.Guild,
+            msg: str,
+            is_welcome: bool,
     ) -> discord.Embed:
         EMBED_DATA = await self.config.guild(guild).EMBED_DATA()
         converted_msg = await self.convert_parms(member, guild, msg, is_welcome)
@@ -118,11 +117,11 @@ class Events:
         if EMBED_DATA["thumbnail"]:
             url = EMBED_DATA["thumbnail"]
             if url == "guild":
-                url = str(guild.icon_url)
+                url = str(guild.icon.url)
             elif url == "splash":
-                url = str(guild.splash_url)
+                url = str(guild.splash.url)
             elif url == "avatar" and isinstance(member, discord.Member):
-                url = str(member.avatar_url)
+                url = str(member.avatar.url)
             em.set_thumbnail(url=url)
         if EMBED_DATA["image"] or EMBED_DATA["image_goodbye"]:
             url = ""
@@ -131,18 +130,18 @@ class Events:
             if EMBED_DATA["image_goodbye"] and not is_welcome:
                 url = EMBED_DATA["image_goodbye"]
             if url == "guild":
-                url = str(guild.icon_url)
+                url = str(guild.icon.url)
             elif url == "splash":
-                url = str(guild.splash_url)
+                url = str(guild.splash.url)
             elif url == "avatar" and isinstance(member, discord.Member):
                 url = str(member.avatar_url)
             em.set_image(url=url)
         if EMBED_DATA["icon_url"]:
             url = EMBED_DATA["icon_url"]
             if url == "guild":
-                url = str(guild.icon_url)
+                url = str(guild.icon.url)
             elif url == "splash":
-                url = str(guild.splash_url)
+                url = str(guild.splash.url)
             elif url == "avatar" and isinstance(member, discord.Member):
                 url = str(member.avatar_url)
             em.set_author(name=username, icon_url=url)
@@ -233,7 +232,7 @@ class Events:
                 )
 
     async def get_welcome_channel(
-        self, member: Union[discord.Member, List[discord.Member]], guild: discord.Guild
+            self, member: Union[discord.Member, List[discord.Member]], guild: discord.Guild
     ) -> Optional[discord.TextChannel]:
         # grab the welcome channel
         # guild_settings = await self.config.guild(guild).guild_settings()
@@ -262,7 +261,7 @@ class Events:
         return channel
 
     async def send_member_join(
-        self, member: Union[discord.Member, List[discord.Member]], guild: discord.Guild
+            self, member: Union[discord.Member, List[discord.Member]], guild: discord.Guild
     ) -> None:
         only_whisper = await self.config.guild(guild).WHISPER() is True
         channel = await self.get_welcome_channel(member, guild)
@@ -424,7 +423,7 @@ class Events:
             await self.config.guild(guild).LAST_GOODBYE.set(save_msg.id)
 
     async def send_testing_msg(
-        self, ctx: commands.Context, bot: bool = False, msg: str = None, leave: bool = False
+            self, ctx: commands.Context, bot: bool = False, msg: str = None, leave: bool = False
     ) -> None:
         # log.info(leave)
         default_greeting = "Welcome {0.name} to {1.name}!"

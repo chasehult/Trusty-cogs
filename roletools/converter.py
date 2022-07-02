@@ -50,7 +50,7 @@ class RoleHierarchyConverter(commands.RoleConverter):
                 raise BadArgument(
                     _(
                         "The {role} role is an integration role and cannot be assigned or removed."
-                    ).fromat(role=role.mention)
+                    ).format(role=role.mention)
                 )
             if getattr(role, "is_premium_subscriber", None) and role.is_premium_subscriber():
                 raise BadArgument(
@@ -102,7 +102,7 @@ class SelfRoleConverter(commands.RoleConverter):
                 raise BadArgument(
                     _(
                         "The {role} role is an integration role and cannot be assigned or removed."
-                    ).fromat(role=role.mention)
+                    ).format(role=role.mention)
                 )
             if role.is_premium_subscriber():
                 raise BadArgument(
