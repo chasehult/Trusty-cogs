@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="da9029aa-d2fc-4ede-ae2b-8efc8ecd3dea" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/stickyroles/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tweets/info.json" beforeDir="false" afterPath="$PROJECT_DIR$/tweets/info.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/welcome/info.json" beforeDir="false" afterPath="$PROJECT_DIR$/welcome/info.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
