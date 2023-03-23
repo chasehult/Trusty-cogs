@@ -1,6 +1,6 @@
 import logging
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from random import choice as rand_choice
 from typing import List, Optional, Pattern, Union, cast
 
@@ -10,6 +10,7 @@ from redbot.core import Config, commands
 from redbot.core.bot import Red
 from redbot.core.i18n import Translator, cog_i18n
 from redbot.core.utils.chat_formatting import humanize_list
+from redbot.core.utils.common_filters import filter_mass_mentions
 
 RE_CTX: Pattern = re.compile(r"{([^}]+)\}")
 RE_POS: Pattern = re.compile(r"{((\d+)[^.}]*(\.[^:}]+)?[^}]*)\}")
@@ -37,11 +38,11 @@ class Events:
         return str(getattr(obj, attr, raw_result))
 
     async def convert_parms(
-            self,
-            member: Union[discord.Member, List[discord.Member]],
-            guild: discord.Guild,
-            msg: str,
-            is_welcome: bool,
+        self,
+        member: Union[discord.Member, List[discord.Member]],
+        guild: discord.Guild,
+        msg: str,
+        is_welcome: bool,
     ) -> str:
         results = RE_POS.findall(msg)
         raw_response = msg
@@ -90,11 +91,11 @@ class Events:
         return raw_response
 
     async def make_embed(
-            self,
-            member: Union[discord.Member, List[discord.Member]],
-            guild: discord.Guild,
-            msg: str,
-            is_welcome: bool,
+        self,
+        member: Union[discord.Member, List[discord.Member]],
+        guild: discord.Guild,
+        msg: str,
+        is_welcome: bool,
     ) -> discord.Embed:
         EMBED_DATA = await self.config.guild(guild).EMBED_DATA()
         converted_msg = await self.convert_parms(member, guild, msg, is_welcome)
@@ -119,9 +120,9 @@ class Events:
             if url == "guild":
                 url = str(guild.icon.url)
             elif url == "splash":
-                url = str(guild.splash.url)
+                url = str(guild.splash_url)
             elif url == "avatar" and isinstance(member, discord.Member):
-                url = str(member.avatar.url)
+                url = str(member.display_avatar)
             em.set_thumbnail(url=url)
         if EMBED_DATA["image"] or EMBED_DATA["image_goodbye"]:
             url = ""
@@ -132,23 +133,23 @@ class Events:
             if url == "guild":
                 url = str(guild.icon.url)
             elif url == "splash":
-                url = str(guild.splash.url)
+                url = str(guild.splash_url)
             elif url == "avatar" and isinstance(member, discord.Member):
-                url = str(member.avatar_url)
+                url = str(member.display_avatar)
             em.set_image(url=url)
         if EMBED_DATA["icon_url"]:
             url = EMBED_DATA["icon_url"]
             if url == "guild":
                 url = str(guild.icon.url)
             elif url == "splash":
-                url = str(guild.splash.url)
+                url = str(guild.splash_url)
             elif url == "avatar" and isinstance(member, discord.Member):
-                url = str(member.avatar_url)
+                url = str(member.display_avatar)
             em.set_author(name=username, icon_url=url)
         if EMBED_DATA["timestamp"]:
-            em.timestamp = datetime.utcnow()
+            em.timestamp = datetime.now(timezone.utc)
         if EMBED_DATA["author"] and isinstance(member, discord.Member):
-            em.set_author(name=username, icon_url=str(member.avatar_url))
+            em.set_author(name=username, icon_url=str(member.display_avatar))
         return em
 
     @commands.Cog.listener()
@@ -164,7 +165,7 @@ class Events:
         if member.bot:
             return await self.bot_welcome(member, guild)
         td = timedelta(days=await self.config.guild(guild).MINIMUM_DAYS())
-        if (datetime.utcnow() - member.created_at) <= td:
+        if (datetime.now(timezone.utc) - member.created_at) <= td:
             log.info(_("Member joined with an account newer than required days."))
             return
         has_filter = self.bot.get_cog("Filter")
@@ -174,8 +175,8 @@ class Events:
                 log.info(_("Member joined with a bad username."))
                 return
 
-        if datetime.utcnow().date() > self.today_count["now"].date():
-            self.today_count = {"now": datetime.utcnow()}
+        if datetime.now(timezone.utc).date() > self.today_count["now"].date():
+            self.today_count = {"now": datetime.now(timezone.utc)}
             # reset the daily count when a user joins the following day or when the cog is reloaded
 
         if guild.id not in self.today_count:
@@ -232,7 +233,7 @@ class Events:
                 )
 
     async def get_welcome_channel(
-            self, member: Union[discord.Member, List[discord.Member]], guild: discord.Guild
+        self, member: Union[discord.Member, List[discord.Member]], guild: discord.Guild
     ) -> Optional[discord.TextChannel]:
         # grab the welcome channel
         # guild_settings = await self.config.guild(guild).guild_settings()
@@ -251,7 +252,7 @@ class Events:
                 return None
         # we can stop here
 
-        if not guild.me.permissions_in(channel).send_messages:
+        if not channel.permissions_for(guild.me).send_messages:
             log.info(_("Permissions Error. User that joined: ") + "{0}".format(member))
             log.info(
                 _("Bot doesn't have permissions to send messages to ")
@@ -261,7 +262,7 @@ class Events:
         return channel
 
     async def send_member_join(
-            self, member: Union[discord.Member, List[discord.Member]], guild: discord.Guild
+        self, member: Union[discord.Member, List[discord.Member]], guild: discord.Guild
     ) -> None:
         only_whisper = await self.config.guild(guild).WHISPER() is True
         channel = await self.get_welcome_channel(member, guild)
@@ -423,7 +424,7 @@ class Events:
             await self.config.guild(guild).LAST_GOODBYE.set(save_msg.id)
 
     async def send_testing_msg(
-            self, ctx: commands.Context, bot: bool = False, msg: str = None, leave: bool = False
+        self, ctx: commands.Context, bot: bool = False, msg: str = None, leave: bool = False
     ) -> None:
         # log.info(leave)
         default_greeting = "Welcome {0.name} to {1.name}!"
