@@ -140,12 +140,9 @@ class TweetPages(menus.PageSource):
 
         msg_list = []
         if self._user is None:
-            log.info(f"Getting user ID for {self._username}")
             resp = await self._api.get_user(username=self._username)
             self._user = resp.data
-            log.info(f"{self._user}")
         try:
-            log.info(f"Getting tweets for {self._user.id}")
             kwargs = {
                 "id": self._user.id,
                 "tweet_fields": TWEET_FIELDS,

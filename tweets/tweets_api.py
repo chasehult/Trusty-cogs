@@ -526,7 +526,6 @@ class TweetsAPI:
 
     @commands.Cog.listener()
     async def on_tweet(self, response: tweepy.StreamResponse) -> None:
-        log.info(response)
         try:
             tweet = response.data
             user = await self.get_user(tweet.author_id, response.includes)
@@ -542,7 +541,6 @@ class TweetsAPI:
                 if channel is None:
                     continue
                 if nsfw and not channel.is_nsfw():
-                    log.info(f"Ignoring tweet from {user} because it is labeled as NSFW.")
                     continue
                 if str(user.id) in data.get("followed_accounts", {}):
                     tasks.append(
